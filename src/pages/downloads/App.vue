@@ -139,7 +139,7 @@ import { oneLine } from '@/util'
                     :key="build.id"
                     width="400px"
                     prepend-icon="mdi-code-tags"
-                    :title="'Latest stable build (#' + build.build_number + ')'"
+                    :title="'Latest build (#' + build.build_number + ')'"
                     :subtitle="'Version: ' + build.version"
                   >
                     <template v-slot:text>
