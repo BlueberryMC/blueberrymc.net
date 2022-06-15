@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import NavigationBar from '@/components/NavigationBar.vue'
+import { oneLine } from '@/util'
 </script>
 
 <template>
@@ -101,7 +102,7 @@ import NavigationBar from '@/components/NavigationBar.vue'
                             {{ change.sha.substring(0, 7) }}
                           </a>
                           <span>: </span>
-                          <span>{{ change.description }}</span>
+                          <span>{{ oneLine(change.description) }}</span>
                         </p>
                       </div>
                       <p v-else>
@@ -151,7 +152,7 @@ import NavigationBar from '@/components/NavigationBar.vue'
                             {{ change.sha.substring(0, 7) }}
                           </a>
                           <span>: </span>
-                          <span>{{ change.description }}</span>
+                          <span>{{ oneLine(change.description) }}</span>
                         </p>
                       </div>
                       <p v-else>
@@ -214,7 +215,7 @@ import NavigationBar from '@/components/NavigationBar.vue'
                               {{ change.sha.substring(0, 7) }}
                             </a>
                             <span>: </span>
-                            <span>{{ change.description }}</span>
+                            <span>{{ oneLine(change.description) }}</span>
                           </p>
                         </div>
                         <p v-else>
