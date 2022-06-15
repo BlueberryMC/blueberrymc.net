@@ -76,7 +76,7 @@ import NavigationBar from '@/components/NavigationBar.vue'
                 title="Heads up!"
                 style="margin: 10px 0 10px 0;"
               >
-                Download button with yellow color means that the build is not yet stable (experimental) and <b>should not be used in production</b>.
+                Download button with yellow color means that the build is not stable (experimental) and <b>should not be used in production</b>.
                 However, if the button is green, it means that the build is <b>promoted</b> and can be used safely in production.
               </v-alert>
               <!-- List of downloadable builds -->
