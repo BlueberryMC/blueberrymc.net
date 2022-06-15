@@ -20,7 +20,7 @@ import { oneLine } from '@/util'
               <v-list-item
                 v-if="versionGroups[download.project].find(({ name }) => name === download.version_group)?.legacy !== true || showLegacy"
                 :title="download.projectCapitalized + ' ' + download.title"
-                :subtitle="download.version_group + '.x (' + downloadItems.versions[download.project + '|' + download.version_group].builds.length + ' builds)'"
+                :subtitle="download.version_group + '.x (' + downloadItems.versions[download.project + '|' + download.version_group].builds.length + ' build' + (downloadItems.versions[download.project + '|' + download.version_group].builds.length === 1 ? '' : 's') + ')'"
                 :active="selectedVersion === index"
                 :theme="getThemeForVersionGroup(versionGroups[download.project].find(({ name }) => name === download.version_group))"
                 @click="selectedVersion = index"
