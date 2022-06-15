@@ -114,6 +114,7 @@ import NavigationBar from '@/components/NavigationBar.vue'
                   <p v-else>
                     <span>No changes</span>
                   </p>
+                  <div style="margin-left: auto">Version: {{ build.version }}</div>
                 </v-list-item>
               </v-list>
             </div>
@@ -144,6 +145,7 @@ type Build = {
     type: string
     download_url: string
   }[]
+  version: string | null
 }
 
 type DownloadItem = {
