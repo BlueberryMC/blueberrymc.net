@@ -79,44 +79,153 @@ import NavigationBar from '@/components/NavigationBar.vue'
                 Download button with yellow color means that the build is not stable (experimental) and <b>should not be used in production</b>.
                 However, if the button is green, it means that the build is <b>promoted</b> and can be used safely in production.
               </v-alert>
-              <!-- List of downloadable builds -->
-              <v-list id="itemList">
-                <v-list-item
-                    v-for="build in downloadItems.versions[downloads[selectedVersion].project + '|' + downloads[selectedVersion].version_group].builds"
+              <div class="build-cards">
+                <!-- TODO: @SuppressWarnings("DuplicateCode") -->
+                <!-- Promoted build card -->
+                <template v-if="downloadItems.versions[downloads[selectedVersion].project + '|' + downloads[selectedVersion].version_group].promoted !== null">
+                  <v-card
+                    v-for="build in [downloadItems.versions[downloads[selectedVersion].project + '|' + downloads[selectedVersion].version_group].promoted]"
                     :key="build.id"
-                    min-height="50px"
-                >
-                  <!-- TODO: this (:color) sucks -->
-                  <!-- Download button -->
-                  <v-btn
-                      v-if="build.files.findIndex(file => file.type === 'universal-installer') !== -1"
-                      :href="build.files.find(file => file.type === 'universal-installer').download_url"
-                      prepend-icon="mdi-cloud-download"
-                      class="download-button"
-                      :color="(getSelectedVersionGroup()?.experimental === true || build.experimental) ? 'yellow-darken-2' : (getSelectedVersionGroup()?.legacy === true ? 'red-darken-3' : (build.promoted ? 'green-lighten-2' : undefined))"
-                      rounded
+                    width="400px"
+                    prepend-icon="mdi-star"
+                    :title="'Promoted build (#' + build.build_number + ')'"
+                    :subtitle="'Version: ' + build.version"
                   >
-                    #{{ build.build_number }}
-                  </v-btn>
-                  <!-- Changelogs -->
-                  <div v-if="build.changes.length > 0">
-                    <p
-                      v-for="change in build.changes"
-                      :key="change.id"
-                    >
-                      <a :href="projects.find(({ name }) => name === downloads[selectedVersion].project).repo_url + '/commit/' + change.sha">
-                        {{ change.sha.substring(0, 7) }}
-                      </a>
-                      <span>: </span>
-                      <span>{{ change.description }}</span>
-                    </p>
-                  </div>
-                  <p v-else>
-                    <span>No changes</span>
-                  </p>
-                  <div style="margin-left: auto">Version: {{ build.version }}</div>
-                </v-list-item>
-              </v-list>
+                    <template v-slot:text>
+                      <div v-if="build.changes.length > 0">
+                        <p
+                          v-for="change in build.changes"
+                          :key="change.id"
+                        >
+                          <a :href="projects.find(({ name }) => name === downloads[selectedVersion].project).repo_url + '/commit/' + change.sha">
+                            {{ change.sha.substring(0, 7) }}
+                          </a>
+                          <span>: </span>
+                          <span>{{ change.description }}</span>
+                        </p>
+                      </div>
+                      <p v-else>
+                        <span>No changes</span>
+                      </p>
+                    </template>
+
+                    <v-card-actions style="align-content: center">
+                      <!-- Download button -->
+                      <v-btn
+                        v-if="build.files.findIndex(file => file.type === 'universal-installer') !== -1"
+                        :href="build.files.find(file => file.type === 'universal-installer').download_url"
+                        prepend-icon="mdi-cloud-download"
+                        class="download-button bg-green-lighten-2"
+                      >
+                        Download
+                      </v-btn>
+                      <!-- Commit -->
+                      <v-btn
+                        v-if="build.changes.length > 0"
+                        :href="projects.find(({ name }) => name === downloads[selectedVersion].project).repo_url + '/commit/' + build.changes[0].sha"
+                        prepend-icon="mdi-github"
+                        class="download-button bg-green-lighten-2"
+                      >
+                        GitHub
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </template>
+                <!-- Latest build card -->
+                <template v-if="downloadItems.versions[downloads[selectedVersion].project + '|' + downloads[selectedVersion].version_group].latest !== null">
+                  <v-card
+                    v-for="build in [downloadItems.versions[downloads[selectedVersion].project + '|' + downloads[selectedVersion].version_group].latest]"
+                    :key="build.id"
+                    width="400px"
+                    prepend-icon="mdi-code-tags"
+                    :title="'Latest stable build (#' + build.build_number + ')'"
+                    :subtitle="'Version: ' + build.version"
+                  >
+                    <template v-slot:text>
+                      <div v-if="build.changes.length > 0">
+                        <p
+                          v-for="change in build.changes"
+                          :key="change.id"
+                        >
+                          <a :href="projects.find(({ name }) => name === downloads[selectedVersion].project).repo_url + '/commit/' + change.sha">
+                            {{ change.sha.substring(0, 7) }}
+                          </a>
+                          <span>: </span>
+                          <span>{{ change.description }}</span>
+                        </p>
+                      </div>
+                      <p v-else>
+                        <span>No changes</span>
+                      </p>
+                    </template>
+
+                    <v-card-actions style="align-content: center">
+                      <!-- Download button -->
+                      <v-btn
+                        v-if="build.files.findIndex(file => file.type === 'universal-installer') !== -1"
+                        :href="build.files.find(file => file.type === 'universal-installer').download_url"
+                        prepend-icon="mdi-cloud-download"
+                        class="download-button"
+                      >
+                        Download
+                      </v-btn>
+                      <!-- Commit -->
+                      <v-btn
+                        v-if="build.changes.length > 0"
+                        :href="projects.find(({ name }) => name === downloads[selectedVersion].project).repo_url + '/commit/' + build.changes[0].sha"
+                        prepend-icon="mdi-github"
+                        class="download-button"
+                      >
+                        GitHub
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </template>
+              </div>
+              <!-- List of downloadable builds -->
+              <v-expansion-panels>
+                <v-expansion-panel title="Individual builds">
+                  <v-expansion-panel-text>
+                    <v-list id="itemList">
+                      <v-list-item
+                        v-for="build in downloadItems.versions[downloads[selectedVersion].project + '|' + downloads[selectedVersion].version_group].builds"
+                        :key="build.id"
+                        min-height="50px"
+                      >
+                        <!-- TODO: this (:color) sucks -->
+                        <!-- Download button -->
+                        <v-btn
+                          v-if="build.files.findIndex(file => file.type === 'universal-installer') !== -1"
+                          :href="build.files.find(file => file.type === 'universal-installer').download_url"
+                          prepend-icon="mdi-cloud-download"
+                          class="download-button"
+                          :color="(getSelectedVersionGroup()?.experimental === true || build.experimental) ? 'yellow-darken-2' : (getSelectedVersionGroup()?.legacy === true ? 'red-darken-3' : (build.promoted ? 'green-lighten-2' : undefined))"
+                          rounded
+                        >
+                          #{{ build.build_number }}
+                        </v-btn>
+                        <!-- Changelogs -->
+                        <div v-if="build.changes.length > 0">
+                          <p
+                            v-for="change in build.changes"
+                            :key="change.id"
+                          >
+                            <a :href="projects.find(({ name }) => name === downloads[selectedVersion].project).repo_url + '/commit/' + change.sha">
+                              {{ change.sha.substring(0, 7) }}
+                            </a>
+                            <span>: </span>
+                            <span>{{ change.description }}</span>
+                          </p>
+                        </div>
+                        <p v-else>
+                          <span>No changes</span>
+                        </p>
+                        <div style="margin-left: auto">Version: {{ build.version }}</div>
+                      </v-list-item>
+                    </v-list>
+                  </v-expansion-panel-text>
+                </v-expansion-panel>
+              </v-expansion-panels>
             </div>
           </v-container>
         </div>
@@ -259,7 +368,7 @@ export default defineComponent({
               // no downloadable files, skip it.
               continue
             }
-            if (data.latest === null) {
+            if (data.latest === null && !build.experimental) {
               data.latest = build
             }
             if (data.promoted === null && build.promoted) {
@@ -355,5 +464,18 @@ export default defineComponent({
 
 #itemList>div:nth-child(even) {
   background-color: rgba(255, 255, 255, 0.05);
+}
+
+.build-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  max-width: 100%;
+  margin: 15px;
+}
+
+.build-cards>div {
+  margin: 15px;
 }
 </style>
