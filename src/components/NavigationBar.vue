@@ -29,7 +29,7 @@
     </v-btn>
     <v-btn
         prepend-icon="mdi-cloud-download"
-        href="/downloads"
+        href="/"
         rounded
     >
       Downloads
