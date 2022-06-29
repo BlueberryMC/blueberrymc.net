@@ -364,7 +364,7 @@ export default defineComponent({
             promoted: null,
             builds: [],
           }
-          for (const build of res.builds.reverse()) { // latest = first
+          for (const build of res.builds.sort((a, b) => b.build_number - a.build_number)) { // latest = first
             if (build.files.length === 0) {
               // no downloadable files, skip it.
               continue
