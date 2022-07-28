@@ -369,6 +369,9 @@ export default defineComponent({
               // no downloadable files, skip it.
               continue
             }
+            if (build.changes) {
+              build.changes.sort((a, b) => b.id - a.id)
+            }
             if (data.latest === null && !build.experimental) {
               data.latest = build
             }
