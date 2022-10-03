@@ -273,7 +273,7 @@ const downloads = [
     project: 'blueberry',
     projectCapitalized: 'Blueberry',
     version_group: '1.19',
-    title: '1.19',
+    title: '1.19.2',
   },
   {
     project: 'blueberry',
