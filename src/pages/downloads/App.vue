@@ -268,7 +268,13 @@ type DownloadItem = {
 import { defineComponent, ref } from 'vue'
 
 // Constants
-const downloads = [
+const downloads = []
+  {
+    project: 'blueberry',
+    projectCapitalized: 'Blueberry',
+    version_group: '1.20',
+    title: '1.20',
+  },
   {
     project: 'blueberry',
     projectCapitalized: 'Blueberry',
