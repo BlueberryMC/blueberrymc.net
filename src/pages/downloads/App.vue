@@ -132,21 +132,21 @@ import { oneLine } from '@/util'
                     </v-card-actions>
                   </v-card>
                 </template>
-                <!-- Latest build card -->
+                <!-- Latest stable build card -->
                 <template v-if="downloadItems.versions[downloads[selectedVersion].project + '|' + downloads[selectedVersion].version_group].latest !== null">
                   <v-card
-                    v-for="build in [downloadItems.versions[downloads[selectedVersion].project + '|' + downloads[selectedVersion].version_group].latest]"
-                    :key="build.id"
-                    width="400px"
-                    prepend-icon="mdi-code-tags"
-                    :title="'Latest build (#' + build.build_number + ')'"
-                    :subtitle="'Version: ' + build.version"
+                      v-for="build in [downloadItems.versions[downloads[selectedVersion].project + '|' + downloads[selectedVersion].version_group].latest]"
+                      :key="build.id"
+                      width="400px"
+                      prepend-icon="mdi-code-tags-check"
+                      :title="'Latest stable build (#' + build.build_number + ')'"
+                      :subtitle="'Version: ' + build.version"
                   >
                     <template v-slot:text>
                       <div v-if="build.changes.length > 0">
                         <p
-                          v-for="change in build.changes"
-                          :key="change.id"
+                            v-for="change in build.changes"
+                            :key="change.id"
                         >
                           <a :href="projects.find(({ name }) => name === downloads[selectedVersion].project).repo_url + '/commit/' + change.sha">
                             {{ change.sha.substring(0, 7) }}
@@ -163,19 +163,71 @@ import { oneLine } from '@/util'
                     <v-card-actions style="align-content: center">
                       <!-- Download button -->
                       <v-btn
-                        v-if="build.files.findIndex(file => file.type === 'universal-installer') !== -1"
-                        :href="build.files.find(file => file.type === 'universal-installer').download_url"
-                        prepend-icon="mdi-cloud-download"
-                        class="download-button"
+                          v-if="build.files.findIndex(file => file.type === 'universal-installer') !== -1"
+                          :href="build.files.find(file => file.type === 'universal-installer').download_url"
+                          prepend-icon="mdi-cloud-download"
+                          class="download-button"
                       >
                         Download
                       </v-btn>
                       <!-- Commit -->
                       <v-btn
-                        v-if="build.changes.length > 0"
-                        :href="projects.find(({ name }) => name === downloads[selectedVersion].project).repo_url + '/commit/' + build.changes[0].sha"
-                        prepend-icon="mdi-github"
-                        class="download-button"
+                          v-if="build.changes.length > 0"
+                          :href="projects.find(({ name }) => name === downloads[selectedVersion].project).repo_url + '/commit/' + build.changes[0].sha"
+                          prepend-icon="mdi-github"
+                          class="download-button"
+                      >
+                        GitHub
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </template>
+                <!-- Latest experimental build card -->
+                <template v-if="downloadItems.versions[downloads[selectedVersion].project + '|' + downloads[selectedVersion].version_group].experimental !== null">
+                  <v-card
+                      v-for="build in [downloadItems.versions[downloads[selectedVersion].project + '|' + downloads[selectedVersion].version_group].experimental]"
+                      :key="build.id"
+                      width="400px"
+                      prepend-icon="mdi-wrench"
+                      :title="'Latest experimental build (#' + build.build_number + ')'"
+                      :subtitle="'Version: ' + build.version"
+                  >
+                    <template v-slot:text>
+                      <div v-if="build.changes.length > 0">
+                        <p
+                            v-for="change in build.changes"
+                            :key="change.id"
+                        >
+                          <a :href="projects.find(({ name }) => name === downloads[selectedVersion].project).repo_url + '/commit/' + change.sha">
+                            {{ change.sha.substring(0, 7) }}
+                          </a>
+                          <span>: </span>
+                          <span>{{ oneLine(change.description) }}</span>
+                        </p>
+                      </div>
+                      <p v-else>
+                        <span>No changes</span>
+                      </p>
+                    </template>
+
+                    <v-card-actions style="align-content: center">
+                      <!-- Download button -->
+                      <v-btn
+                          v-if="build.files.findIndex(file => file.type === 'universal-installer') !== -1"
+                          :href="build.files.find(file => file.type === 'universal-installer').download_url"
+                          prepend-icon="mdi-cloud-download"
+                          theme="yellow"
+                          class="download-button"
+                      >
+                        Download
+                      </v-btn>
+                      <!-- Commit -->
+                      <v-btn
+                          v-if="build.changes.length > 0"
+                          :href="projects.find(({ name }) => name === downloads[selectedVersion].project).repo_url + '/commit/' + build.changes[0].sha"
+                          prepend-icon="mdi-github"
+                          theme="yellow"
+                          class="download-button"
                       >
                         GitHub
                       </v-btn>
@@ -259,6 +311,7 @@ type Build = {
 }
 
 type DownloadItem = {
+  experimental: Build | null
   latest: Build | null
   promoted: Build | null
   builds: Build[]
@@ -279,7 +332,7 @@ const downloads = [
     project: 'blueberry',
     projectCapitalized: 'Blueberry',
     version_group: '1.19',
-    title: '1.19.2',
+    title: '1.19.4',
   },
   {
     project: 'blueberry',
@@ -366,6 +419,7 @@ export default defineComponent({
         })
         .then((res: { builds: Build[] }) => {
           const data: DownloadItem = {
+            experimental: null,
             latest: null,
             promoted: null,
             builds: [],
@@ -378,6 +432,9 @@ export default defineComponent({
             if (build.changes) {
               build.changes.sort((a, b) => b.id - a.id)
             }
+            if (data.experimental === null && build.experimental) {
+              data.experimental = build
+            }
             if (data.latest === null && !build.experimental) {
               data.latest = build
             }
@@ -389,7 +446,12 @@ export default defineComponent({
           downloadItems.versions[download.project + '|' + download.version_group] = data
         })
         .catch(() => {
-          downloadItems.versions[download.project + '|' + download.version_group] = { latest: null, promoted: null, builds: [] }
+          downloadItems.versions[download.project + '|' + download.version_group] = {
+            experimental: null,
+            latest: null,
+            promoted: null,
+            builds: [],
+          }
         })
       promises.push(promise)
     }
